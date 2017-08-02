@@ -3,22 +3,27 @@ const transaction = require('../models/transactions');
 const user = require('../models/users');
 
 // mongoose.connect('mongodb://localhost/Chatbot');
-mongoose.connect(process.env.MONGODB_URI);
+mongoose.connect("mongodb://localhost:27017/transactiondb");
 
-const transac = new transaction({
+const transac = [
 
-    trans1: { amount: 400, date: 11 / 11 / 2017, account: "main", category: "rent", transactionType: "expense" },
-    trans2: { amount: 5, date: 11 / 11 / 2017, account: "cash", category: "food", transactionType: "expense" },
-    trans3: { amount: 5000, date: 11 / 11 / 2017, account: "main", category: "salary", transactionType: "income" },
-    trans4: { amount: 20, date: 11 / 12 / 2017, account: "main", category: "health", transactionType: "expense" },
+    { amount: 400, date: 11 / 11 / 2017, account: "main", category: "rent", transactionType: "expense" }, { amount: 5, date: 11 / 11 / 2017, account: "cash", category: "food", transactionType: "expense" }, { amount: 5000, date: 11 / 11 / 2017, account: "main", category: "salary", transactionType: "income" }, { amount: 20, date: 11 / 12 / 2017, account: "main", category: "health", transactionType: "expense" }
 
-});
+];
 
-transaction.create(transac, (err, transaction) => {
-    if (err) {
-        throw err;
-    }
-    console.log(transaction);
+// transaction.create(transac, (err, transaction) => {
+//     if (err) {
+//         throw err;
+//     }
+//     console.log(transaction);
+//     mongoose.connection.close();
+// });
+
+transaction.create(transac, (err, docs) => {
+    if (err) { throw err };
+    docs.forEach((transac) => {
+        console.log(transac)
+    })
     mongoose.connection.close();
 });
 

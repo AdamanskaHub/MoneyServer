@@ -1,13 +1,18 @@
+const mongoose = require('mongoose');
+
+
 var express = require('express');
 var path = require('path');
 var favicon = require('serve-favicon');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
-
 var index = require('./routes/index');
+var transactions = require('./routes/api/transactionRoutes');
 
 var app = express();
+
+mongoose.connect("mongodb://localhost:27017/transactiondb");
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -22,6 +27,8 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', index);
+app.use('/transactions', transactions);
+
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
