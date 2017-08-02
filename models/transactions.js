@@ -5,7 +5,7 @@ const transactionSchema = new Schema({
     amount: Number,
     date: Date,
     account: Array,
-    Category: Array,
+    category: Array,
     transactionType: String
 
 });
