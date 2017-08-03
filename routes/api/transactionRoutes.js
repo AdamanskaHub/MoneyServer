@@ -1,9 +1,9 @@
 const express = require('express');
 const router = express.Router();
 const Entry = require('../../models/transactions');
-console.log("HELLOOO")
+console.log("api transactionRoutes")
 router.get('/', (req, res, next) => {
-    console.log("inside")
+    console.log("inside router get")
     Entry.find({}, (err, entries) => {
         if (err) { return res.json(err).status(500); }
 
