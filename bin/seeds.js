@@ -13,7 +13,10 @@ const transac = [
     { amount: 20, date: 11 / 12 / 2017, account: "main", category: "health", icon: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTTtbljyNDGAqvVwzfKo5tk4jtnZubU4SHrKtB7wl7S0qALzD2AUg', transactionType: "expense", }
 
 ];
-
+const User = [{
+    username: 'new',
+    password: 'new'
+}];
 // transaction.create(transac, (err, transaction) => {
 //     if (err) {
 //         throw err;
@@ -26,6 +29,13 @@ transaction.create(transac, (err, docs) => {
     if (err) { throw err };
     docs.forEach((transac) => {
         console.log(transac)
+    })
+    mongoose.connection.close();
+});
+user.create(User, (err, docs) => {
+    if (err) { throw err };
+    docs.forEach((user) => {
+        console.log(User)
     })
     mongoose.connection.close();
 });
