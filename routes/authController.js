@@ -1,68 +1,90 @@
-const express = require('express');
-const bcrypt = require("bcrypt");
+var express = require('express');
+var router = express.Router();
+var jwt = require('jsonwebtoken');
+var jwtOptions = require('../config/jwtoptions');
+const passport = require('../config/passport');
+
+// Our user model
 const User = require("../models/user");
-const passport = require("../helpers/passport");
-const router = express.Router();
+
+// Bcrypt let us encrypt passwords
+const bcrypt = require("bcrypt");
 const bcryptSalt = 10;
-/* GET users listing. */
-router.get('/signup', function(req, res, next) {
-    res.render('auth/signup', { "message": req.flash("error") });
-});
-router.post("/signup", (req, res, next) => {
-    console.log("arriving at sign up");
-    var username = req.body.username;
-    var password = req.body.password;
+
+
+router.post("/login", function(req, res) {
+
+    if (req.body.username && req.body.password) {
+        var username = req.body.username;
+        var password = req.body.password;
+    }
+
     if (username === "" || password === "") {
-        req.flash('error', 'Indicate username and password');
-        res.render("auth/signup", { "message": req.flash("error") });
-        console.log("consider the stuff empty");
+        res.status(401).json({ message: "fill up the fields" });
         return;
     }
+
+    User.findOne({ "username": username }, (err, user) => {
+
+        if (!user) {
+            res.status(401).json({ message: "no such user found" });
+        } else {
+            bcrypt.compare(password, user.password, function(err, isMatch) {
+                console.log(isMatch);
+                if (!isMatch) {
+                    res.status(401).json({ message: "passwords did not match" });
+                } else {
+                    console.log('user', user);
+                    var payload = { id: user._id, user: user.username };
+                    var token = jwt.sign(payload, jwtOptions.secretOrKey);
+                    console.log(token)
+                    res.json({ message: "ok", token: token, user: user });
+                }
+            });
+        }
+    })
+});
+
+router.get("/token", passport.authenticate('jwt', { session: false }), (req, res, next) => {
+
+    res.json({ ok: 'ok' })
+})
+
+router.post("/signup", (req, res, next) => {
+    var username = req.body.username;
+    var password = req.body.password;
+
+    if (!username || !password) {
+        res.status(400).json({ message: "Provide username and password" });
+        return;
+    }
+
     User.findOne({ username }, "username", (err, user) => {
         if (user !== null) {
-            req.flash('error', 'The username already exists');
-            console.log("already user");
-            res.render("auth/signup", { message: req.flash("error") });
+            res.status(400).json({ message: 'user exist' });
             return;
         }
+
         var salt = bcrypt.genSaltSync(bcryptSalt);
         var hashPass = bcrypt.hashSync(password, salt);
+
         var newUser = User({
             username,
             password: hashPass
         });
-        newUser.save((err) => {
+
+        newUser.save((err, user) => {
             if (err) {
-                req.flash('error', 'The username already exists');
-                console.log("error of newUser");
-                res.render("auth/signup", { message: req.flash('error') });
-                return res.send(); // I?VE ADDED THAT RANDOMLY
+                res.status(400).json({ message: err });
             } else {
-                passport.authenticate("local")(req, res, function() {
-                    //console.log("successful signup of " + user.username);
-                    console.log("redirecting at full power to the main page");
-                    res.redirect('/');
-                    // JE REDIRIGE VERS UN ENDROIT DONT JE NE SUIS PAS SURE!
-                });
+                var payload = { id: user._id, user: user.username };
+
+                var token = jwt.sign(payload, jwtOptions.secretOrKey);
+                res.status(200).json({ message: "ok", token: token, user: user });
+                // res.status(200).json(user);
             }
         });
     });
 });
-router.get("/login", (req, res, next) => {
-    res.render("auth/login", { "message": req.flash("error") });
-});
-router.post("/login", passport.authenticate("local", {
-    successRedirect: "/",
-    failureRedirect: "/login",
-    failureFlash: true,
-    passReqToCallback: true
-}));
-router.get("/logout", (req, res) => {
-    req.logout();
-    delete res.locals.currentUser;
-    delete req.session.passport;
-    // delete currentUser and passport properties 
-    // becasuse when we calling req.logout() is leaving an empty object inside both properties.s
-    res.redirect('/login');
-});
+
 module.exports = router;
