@@ -5,11 +5,13 @@ var jwtOptions = require('../config/jwtoptions');
 const passport = require('../config/passport');
 
 // Our user model
-const User = require("../models/user");
+const User = require("../models/users");
 
 // Bcrypt let us encrypt passwords
 const bcrypt = require("bcrypt");
 const bcryptSalt = 10;
+
+console.log('ON THE FILE!');
 
 
 router.post("/login", function(req, res) {
@@ -51,8 +53,13 @@ router.get("/token", passport.authenticate('jwt', { session: false }), (req, res
 })
 
 router.post("/signup", (req, res, next) => {
+    console.log('IM ON THE BACKEND!');
+    console.log('req.body on backend', req.body);
+
+
     var username = req.body.username;
     var password = req.body.password;
+    console.log('things', username, password);
 
     if (!username || !password) {
         res.status(400).json({ message: "Provide username and password" });

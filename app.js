@@ -8,6 +8,8 @@ var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var index = require('./routes/index');
+var authController = require('./routes/authController');
+
 var transactions = require('./routes/api/transactionRoutes');
 var cors = require('cors');
 
@@ -28,7 +30,7 @@ app.use(cors());
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use('/', index);
+app.use('/', authController);
 app.use('/transactions', transactions);
 
 
