@@ -7,10 +7,10 @@ mongoose.connect("mongodb://localhost:27017/transactiondb");
 
 const transac = [
 
-    { amount: 400, date: 11 / 11 / 2017, account: "main", category: "rent", icon: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTTtbljyNDGAqvVwzfKo5tk4jtnZubU4SHrKtB7wl7S0qALzD2AUg', transactionType: "expense" },
-    { amount: 5, date: 11 / 11 / 2017, account: "cash", category: "food", icon: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTTtbljyNDGAqvVwzfKo5tk4jtnZubU4SHrKtB7wl7S0qALzD2AUg', transactionType: "expense", },
-    { amount: 5000, date: 11 / 11 / 2017, account: "main", category: "salary", icon: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTTtbljyNDGAqvVwzfKo5tk4jtnZubU4SHrKtB7wl7S0qALzD2AUg', transactionType: "income", },
-    { amount: 20, date: 11 / 12 / 2017, account: "main", category: "health", icon: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTTtbljyNDGAqvVwzfKo5tk4jtnZubU4SHrKtB7wl7S0qALzD2AUg', transactionType: "expense", }
+    { amount: 400, date: 11 / 11 / 2017, account: "main", category: "Rent", icon: 'fa-home', transactionType: "expense" },
+    { amount: 5, date: 11 / 11 / 2017, account: "cash", category: "Food", icon: 'fa-cutlery', transactionType: "expense", },
+    { amount: 5000, date: 11 / 11 / 2017, account: "main", category: "Salary", icon: 'fa-suitcase', transactionType: "income", },
+    { amount: 20, date: 11 / 12 / 2017, account: "main", category: "Health", icon: 'fa-heartbeat', transactionType: "expense", }
 
 ];
 const User = [{
@@ -41,3 +41,12 @@ user.create(User, (err, docs) => {
 });
 
 //grabbing info from models and insert them to the database
+
+
+
+
+
+// { amount: 400, date: 11 / 11 / 2017, account: "main", category: "Rent", icon: '<i class="fa fa-home" aria-hidden="true"></i>', transactionType: "expense" },
+//     { amount: 5, date: 11 / 11 / 2017, account: "cash", category: "Food", icon: '<i class="fa fa-cutlery" aria-hidden="true"></i>', transactionType: "expense", },
+//     { amount: 5000, date: 11 / 11 / 2017, account: "main", category: "Salary", icon: '<i class="fa fa-suitcase" aria-hidden="true"></i>', transactionType: "income", },
+//     { amount: 20, date: 11 / 12 / 2017, account: "main", category: "Health", icon: '<i class="fa fa-heartbeat" aria-hidden="true"></i>', transactionType: "expense", }
