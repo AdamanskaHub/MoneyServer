@@ -1,8 +1,8 @@
-var express = require('express');
-const transactionRoutes = require('./api/transactionRoutes');
+// var express = require('express');
+// const transactionRoutes = require('./api/transactionRoutes');
 
-var router = express.Router();
+// var router = express.Router();
 
-router.use('/api', transactionRoutes);
+// router.use('/api', transactionRoutes);
 
-module.exports = router;
+// module.exports = router;
