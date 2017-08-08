@@ -80,13 +80,21 @@ router.put('/transactions/:id', passport.authenticate('jwt', { session: false })
 
 //delete transactions
 router.delete('/transactions/:id', passport.authenticate('jwt', { session: false }), function(req, res, next) {
+    console.log('IDDDD');
+
     var id = req.params.id;
 
-    transaction.remove({ _id: id, owner: req.user._id }, function(err) {
+    Entry.remove({ _id: id, owner: req.user._id }, function(err, transactionsList) {
         if (err) {
             res.json(err);
         } else {
-            res.json({ message: "transaction deleted" });
+            Entry.find({ owner: mongoose.Types.ObjectId(req.user._id) }, function(err, transactionsList) {
+                if (err) {
+                    res.json(err);
+                } else {
+                    res.status(200).json(transactionsList);
+                }
+            });
         }
     });
 });
