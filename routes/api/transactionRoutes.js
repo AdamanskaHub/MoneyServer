@@ -100,20 +100,49 @@ router.put('/transactions/:id', passport.authenticate('jwt', { session: false })
 //delete transactions
 router.delete('/transactions/:id', passport.authenticate('jwt', { session: false }), function(req, res, next) {
     console.log('IDDDD');
-
+    var balanceAmount = req.user.balanceAmount
     var id = req.params.id;
-
-    Entry.remove({ _id: id, owner: req.user._id }, function(err, transactionsList) {
+    console.log(id)
+    Entry.findById({ _id: id, owner: req.user._id }, function(err, transactionsList) {
         if (err) {
             res.json(err);
         } else {
-            Entry.find({ owner: mongoose.Types.ObjectId(req.user._id) }, function(err, transactionsList) {
+            console.log("inside", id)
+            balanceAmount = balanceAmount - transactionsList.amount;
+            User.findByIdAndUpdate({ _id: req.user._id }, { $pull: { transactions: id }, balanceAmount: balanceAmount }, { new: true }, (err, user) => {
+
                 if (err) {
+
                     res.json(err);
                 } else {
-                    res.status(200).json(transactionsList);
+                    Entry.remove({ _id: id }, function(err, transactionsList) {
+                        if (err) {
+                            res.json(err);
+                        } else {
+                            User
+                                .findOne({ _id: user._id })
+                                .populate("transactions")
+                                .exec((err, user) => {
+                                    if (err) { next(err) }
+                                    console.log('user balance', user);
+                                    res.json(user);
+
+                                })
+
+                        }
+                    });
+
+
                 }
             });
+            // res.send("string")
+            // Entry.find({ owner: mongoose.Types.ObjectId(req.user._id) }, function(err, transactionsList) {
+            //     if (err) {
+            //         res.json(err);
+            //     } else {
+            //         res.status(200).json(transactionsList);
+            //     }
+            // });
         }
     });
 });
