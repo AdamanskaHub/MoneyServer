@@ -4,6 +4,7 @@ const Schema = mongoose.Schema;
 const userSchema = new Schema({
     username: String,
     password: String,
+    balanceAmount: Number,
     transactions: [{ type: Schema.Types.ObjectId, ref: 'transaction' }],
 }, {
     timestamps: {

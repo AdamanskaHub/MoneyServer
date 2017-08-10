@@ -15,7 +15,8 @@ const transac = [
 ];
 const User = [{
     username: 'new',
-    password: 'new'
+    password: 'new',
+    balanceAmount: 10000
 }];
 // transaction.create(transac, (err, transaction) => {
 //     if (err) {

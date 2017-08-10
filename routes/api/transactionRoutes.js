@@ -30,6 +30,7 @@ router.get('/transactions', passport.authenticate('jwt', { session: false }), fu
 //post transaction coming from overlay form to DB
 router.post('/transactions', passport.authenticate('jwt', { session: false }), (req, res, next) => {
     // FIXME: Add transaction to the user
+    var balanceAmount = req.user.balanceAmount
     const newTransactionEntry = new Entry({
         amount: req.body.amount,
         date: req.body.date,
@@ -38,10 +39,28 @@ router.post('/transactions', passport.authenticate('jwt', { session: false }), (
         transactionType: req.body.transactionType,
         owner: req.user._id
     });
-    newTransactionEntry.save((err) => {
-        if (err) { return res.status(500).json(err); }
-        if (newTransactionEntry.errors) { return res.status(400).json(newTransactionEntry); }
-        return res.json(newTransactionEntry);
+    let id = req.user._id;
+
+    console.log('NEW', newTransactionEntry);
+
+    newTransactionEntry.save((err, newTransactionEntry) => {
+        balanceAmount = balanceAmount + newTransactionEntry.amount;
+        console.log(balanceAmount);
+
+        if (err) { return res.status(500).json(err); } else {
+
+            User.findByIdAndUpdate({ _id: id }, { $push: { transactions: newTransactionEntry._id }, balanceAmount: balanceAmount }, { new: true }, (err, user) => {
+
+                if (err) {
+
+                    res.json(err);
+                } else {
+                    console.log('user balance', user.balanceAmount);
+                    res.json({ user, newTransactionEntry });
+
+                }
+            });
+        }
     });
 });
 
