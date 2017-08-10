@@ -30,6 +30,7 @@ router.get('/transactions', passport.authenticate('jwt', { session: false }), fu
 //post transaction coming from overlay form to DB
 router.post('/transactions', passport.authenticate('jwt', { session: false }), (req, res, next) => {
     // FIXME: Add transaction to the user
+    var balanceAmount = req.user.balanceAmount
     const newTransactionEntry = new Entry({
         amount: req.body.amount,
         date: req.body.date,
@@ -38,10 +39,28 @@ router.post('/transactions', passport.authenticate('jwt', { session: false }), (
         transactionType: req.body.transactionType,
         owner: req.user._id
     });
-    newTransactionEntry.save((err) => {
-        if (err) { return res.status(500).json(err); }
-        if (newTransactionEntry.errors) { return res.status(400).json(newTransactionEntry); }
-        return res.json(newTransactionEntry);
+    let id = req.user._id;
+
+    console.log('NEW', newTransactionEntry);
+
+    newTransactionEntry.save((err, newTransactionEntry) => {
+        balanceAmount = balanceAmount + newTransactionEntry.amount;
+        console.log(balanceAmount);
+
+        if (err) { return res.status(500).json(err); } else {
+
+            User.findByIdAndUpdate({ _id: id }, { $push: { transactions: newTransactionEntry._id }, balanceAmount: balanceAmount }, { new: true }, (err, user) => {
+
+                if (err) {
+
+                    res.json(err);
+                } else {
+                    console.log('user balance', user.balanceAmount);
+                    res.json({ user, newTransactionEntry });
+
+                }
+            });
+        }
     });
 });
 
@@ -80,13 +99,50 @@ router.put('/transactions/:id', passport.authenticate('jwt', { session: false })
 
 //delete transactions
 router.delete('/transactions/:id', passport.authenticate('jwt', { session: false }), function(req, res, next) {
+    console.log('IDDDD');
+    var balanceAmount = req.user.balanceAmount
     var id = req.params.id;
-
-    transaction.remove({ _id: id, owner: req.user._id }, function(err) {
+    console.log(id)
+    Entry.findById({ _id: id, owner: req.user._id }, function(err, transactionsList) {
         if (err) {
             res.json(err);
         } else {
-            res.json({ message: "transaction deleted" });
+            console.log("inside", id)
+            balanceAmount = balanceAmount - transactionsList.amount;
+            User.findByIdAndUpdate({ _id: req.user._id }, { $pull: { transactions: id }, balanceAmount: balanceAmount }, { new: true }, (err, user) => {
+
+                if (err) {
+
+                    res.json(err);
+                } else {
+                    Entry.remove({ _id: id }, function(err, transactionsList) {
+                        if (err) {
+                            res.json(err);
+                        } else {
+                            User
+                                .findOne({ _id: user._id })
+                                .populate("transactions")
+                                .exec((err, user) => {
+                                    if (err) { next(err) }
+                                    console.log('user balance', user);
+                                    res.json(user);
+
+                                })
+
+                        }
+                    });
+
+
+                }
+            });
+            // res.send("string")
+            // Entry.find({ owner: mongoose.Types.ObjectId(req.user._id) }, function(err, transactionsList) {
+            //     if (err) {
+            //         res.json(err);
+            //     } else {
+            //         res.status(200).json(transactionsList);
+            //     }
+            // });
         }
     });
 });

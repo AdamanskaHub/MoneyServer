@@ -48,7 +48,6 @@ router.post("/login", function(req, res) {
 });
 
 router.get("/token", passport.authenticate('jwt', { session: false }), (req, res, next) => {
-
     res.json({ ok: 'ok' })
 })
 
@@ -59,16 +58,17 @@ router.post("/signup", (req, res, next) => {
 
     var username = req.body.username;
     var password = req.body.password;
-    console.log('things', username, password);
+    var balanceAmount = req.body.balanceAmount;
+    console.log('userData', username, password, balanceAmount);
 
-    if (!username || !password) {
-        res.status(400).json({ message: "Provide username and password" });
+    if (!username || !password || !balanceAmount) {
+        res.status(400).json({ message: "Provide username, password and balance" });
         return;
     }
 
     User.findOne({ username }, "username", (err, user) => {
         if (user !== null) {
-            res.status(400).json({ message: 'user exist' });
+            res.status(400).json({ message: 'ups! the user exist' });
             return;
         }
 
@@ -76,15 +76,16 @@ router.post("/signup", (req, res, next) => {
         var hashPass = bcrypt.hashSync(password, salt);
 
         var newUser = User({
-            username,
-            password: hashPass
+            username: username,
+            password: hashPass,
+            balanceAmount: balanceAmount
         });
 
         newUser.save((err, user) => {
             if (err) {
                 res.status(400).json({ message: err });
             } else {
-                var payload = { id: user._id, user: user.username };
+                var payload = { id: user._id, user: user.username, balanceAmount: balanceAmount };
 
                 var token = jwt.sign(payload, jwtOptions.secretOrKey);
                 res.status(200).json({ message: "ok", token: token, user: user });
