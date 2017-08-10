@@ -44,7 +44,7 @@ router.post("/login", function(req, res) {
                 }
             });
         }
-    })
+    });
 });
 
 router.get("/token", passport.authenticate('jwt', { session: false }), (req, res, next) => {
